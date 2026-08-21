@@ -3,63 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SXC Shop</title>
+    <meta name="description" content="SXC Shop - Premium Digital & Physical Products at Best Prices">
+    <meta name="theme-color" content="#6366f1">
+    <title>SXC Shop | Premium Digital & Physical Products</title>
+    
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <!-- Notification Toast -->
-    <div id="toast-container"></div>
+    <div id="toast-container" aria-live="polite"></div>
 
     <!-- Loading Spinner -->
-    <div id="loader" class="hidden">
+    <div id="loader" class="hidden" role="status" aria-label="Loading">
         <div class="spinner"></div>
+        <span class="sr-only">Loading...</span>
     </div>
 
     <!-- Navigation -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
         <div class="container nav-content">
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+                <span class="hamburger"></span>
+            </button>
+            
             <div class="logo" id="site-logo">
-                <img src="" alt="Logo" id="logo-img" class="hidden">
-                <span id="site-name-text">SXC Shop</span>
+                <a href="#" onclick="router('home')" aria-label="SXC Shop Home">
+                    <img src="" alt="SXC Shop Logo" id="logo-img" class="hidden">
+                    <span id="site-name-text">SXC Shop</span>
+                </a>
             </div>
-            <ul class="nav-links">
-                <li><a href="#" onclick="router('home')">Home</a></li>
-                <li><a href="#" onclick="router('products')">Products</a></li>
-                <li><a href="#" onclick="router('support')">Support</a></li>
-                <li id="cart-btn-li"><a href="#" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a></li>
-                <li id="auth-btn-li"><a href="#" onclick="handleLogin()"><i class="fas fa-user"></i> Login</a></li>
-                <li id="admin-btn-li" class="hidden"><a href="#" onclick="router('admin')" class="admin-link"><i class="fas fa-cog"></i> Admin Panel</a></li>
-                <li id="logout-btn-li" class="hidden"><a href="#" onclick="handleLogout()">Logout</a></li>
+            
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#" onclick="router('home')" class="nav-link active">Home</a></li>
+                <li><a href="#" onclick="router('products')" class="nav-link">Products</a></li>
+                <li><a href="#" onclick="router('support')" class="nav-link">Support</a></li>
             </ul>
+            
+            <div class="nav-actions">
+                <button class="search-btn" id="search-btn" aria-label="Search products">
+                    <i class="fas fa-search"></i>
+                </button>
+                
+                <a href="#" onclick="toggleCart()" class="cart-btn" aria-label="Shopping cart">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-count-badge" id="cart-count">0</span>
+                </a>
+                
+                <a href="#" onclick="handleLogin()" class="auth-btn" id="auth-btn">
+                    <i class="fas fa-user"></i>
+                    <span class="auth-text">Sign In</span>
+                </a>
+                
+                <a href="#" onclick="router('admin')" class="admin-btn hidden" id="admin-btn">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin</span>
+                </a>
+                
+                <a href="#" onclick="handleLogout()" class="logout-btn hidden" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-bar-container hidden" id="search-bar-container">
+            <div class="container">
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search products..." aria-label="Search products">
+                    <button class="search-close" id="search-close" aria-label="Close search">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </nav>
 
     <!-- Main Content Area -->
-    <main id="app-content">
+    <main id="app-content" id="main-content">
         <!-- Views will be injected here by JavaScript -->
     </main>
 
     <!-- Footer -->
-    <footer id="main-footer">
+    <footer id="main-footer" role="contentinfo">
         <div class="container">
-            <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About SXC Shop</h3>
+                    <p>Your trusted destination for premium digital and physical products. Quality guaranteed.</p>
+                    <div class="trust-badges">
+                        <span><i class="fas fa-shield-alt"></i> Secure</span>
+                        <span><i class="fas fa-truck"></i> Fast Delivery</span>
+                        <span><i class="fas fa-headset"></i> 24/7 Support</span>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#" onclick="router('home')">Home</a></li>
+                        <li><a href="#" onclick="router('products')">All Products</a></li>
+                        <li><a href="#" onclick="router('support')">Support</a></li>
+                    </ul>
+                </div>
                 <div class="footer-section">
                     <h3>Contact Us</h3>
-                    <p id="footer-contact"></p>
+                    <p id="footer-contact"><i class="fas fa-envelope"></i> support@sxc-shop.xyz</p>
+                    <div id="footer-socials" class="social-links">
+                        <a href="#" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
                 </div>
-                <div class="footer-section">
-                    <h3>Social Links</h3>
-                    <div id="footer-socials"></div>
-                </div>
-                <div class="footer-section">
-                    <p>&copy; <span id="year"></span> SXC Shop. All rights reserved.</p>
-                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="year"></span> SXC Shop. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -67,52 +141,144 @@
     <!-- Modals -->
     
     <!-- Product Detail Modal -->
-    <div id="product-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('product-modal')">&times;</span>
+    <div id="product-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-overlay" onclick="closeModal('product-modal')"></div>
+        <div class="modal-content product-modal-content">
+            <button class="close-modal" onclick="closeModal('product-modal')" aria-label="Close modal">
+                <i class="fas fa-times"></i>
+            </button>
             <div id="product-detail-body"></div>
         </div>
     </div>
 
     <!-- Cart Modal -->
-    <div id="cart-modal" class="modal hidden">
-        <div class="modal-content cart-content">
-            <span class="close-modal" onclick="toggleCart()">&times;</span>
-            <h2>Your Cart</h2>
+    <div id="cart-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+        <div class="modal-overlay" onclick="toggleCart()"></div>
+        <div class="modal-content cart-modal-content">
+            <button class="close-modal" onclick="toggleCart()" aria-label="Close cart">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 id="cart-title">Your Cart</h2>
             <div id="cart-items"></div>
-            <div class="cart-total">
-                <h3>Total: <span id="cart-total-amount">0</span> BDT</h3>
-                <button class="btn-primary" onclick="proceedToCheckout()">Checkout</button>
+            <div class="cart-empty-state hidden" id="cart-empty">
+                <i class="fas fa-shopping-bag"></i>
+                <p>Your cart is empty</p>
+                <button class="btn-primary" onclick="toggleCart(); router('products')">Continue Shopping</button>
+            </div>
+            <div class="cart-summary" id="cart-summary">
+                <div class="cart-total">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">৳0</span>
+                </div>
+                <div class="cart-total">
+                    <span>Shipping</span>
+                    <span id="cart-shipping">৳0</span>
+                </div>
+                <div class="cart-total grand-total">
+                    <span>Total</span>
+                    <span id="cart-total-amount">৳0</span>
+                </div>
+                <button class="btn-primary btn-large" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Checkout Modal -->
-    <div id="checkout-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('checkout-modal')">&times;</span>
-            <h2>Checkout</h2>
-            <form id="checkout-form">
-                <div id="shipping-fields">
-                    <h3>Shipping Information</h3>
-                    <input type="text" id="cust-name" placeholder="Full Name" required>
-                    <input type="text" id="cust-phone" placeholder="Phone Number" required>
-                    <textarea id="cust-address" placeholder="Full Address" required></textarea>
+    <div id="checkout-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+        <div class="modal-overlay" onclick="closeModal('checkout-modal')"></div>
+        <div class="modal-content checkout-modal-content">
+            <button class="close-modal" onclick="closeModal('checkout-modal')" aria-label="Close checkout">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 id="checkout-title">Checkout</h2>
+            
+            <div class="checkout-steps">
+                <div class="checkout-step active" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-label">Shipping</span>
                 </div>
-                <h3>Payment Method</h3>
-                <select id="payment-method" onchange="togglePaymentFields()">
-                    <option value="bkash">bKash</option>
-                    <option value="nagad">Nagad</option>
-                    <option value="sslcommerz">Credit/Debit Card (SSLCommerz)</option>
-                </select>
+                <div class="checkout-step" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-label">Payment</span>
+                </div>
+                <div class="checkout-step" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-label">Review</span>
+                </div>
+            </div>
+            
+            <form id="checkout-form">
+                <div id="shipping-fields" class="checkout-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Shipping Information</h3>
+                    <div class="form-row">
+                        <input type="text" id="cust-name" placeholder="Full Name *" required aria-required="true">
+                        <input type="tel" id="cust-phone" placeholder="Phone Number *" required aria-required="true">
+                    </div>
+                    <textarea id="cust-address" placeholder="Full Address *" required aria-required="true"></textarea>
+                </div>
                 
-                <div id="manual-payment-info" class="payment-info">
-                    <p>Send money to: <strong>01700000000</strong> (Personal)</p>
-                    <p>Reference: Your Phone Number</p>
-                    <input type="text" id="trx-id" placeholder="Enter Transaction ID (TrxID)" required>
+                <div id="payment-fields" class="checkout-section">
+                    <h3><i class="fas fa-credit-card"></i> Payment Method</h3>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="bkash" checked>
+                            <div class="payment-card">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>bKash</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="nagad">
+                            <div class="payment-card">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>Nagad</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="sslcommerz">
+                            <div class="payment-card">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Card</span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div id="manual-payment-info" class="payment-info">
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Send money to: <strong>01700000000</strong> (Personal)</p>
+                            <p>Reference: Your Phone Number</p>
+                        </div>
+                        <input type="text" id="trx-id" placeholder="Transaction ID (TrxID) *" required>
+                    </div>
+
+                    <div id="ssl-info" class="payment-info hidden">
+                        <div class="info-box success">
+                            <i class="fas fa-lock"></i>
+                            <p>You will be redirected to secure SSLCommerz payment gateway.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="review-fields" class="checkout-section hidden">
+                    <h3><i class="fas fa-clipboard-check"></i> Order Review</h3>
+                    <div id="order-review"></div>
                 </div>
 
-                <button type="submit" class="btn-primary">Confirm Order</button>
+                <div class="checkout-actions">
+                    <button type="button" class="btn-secondary" id="prev-step" onclick="changeCheckoutStep(-1)" hidden>
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button type="button" class="btn-primary" id="next-step" onclick="changeCheckoutStep(1)">
+                        Continue <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button type="submit" class="btn-primary btn-large hidden" id="confirm-order">
+                        <i class="fas fa-check"></i> Confirm Order
+                    </button>
+                </div>
             </form>
         </div>
     </div>
