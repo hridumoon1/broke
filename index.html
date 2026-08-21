@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SXC Shop</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Notification Toast -->
+    <div id="toast-container"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loader" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-content">
+            <div class="logo" id="site-logo">
+                <img src="" alt="Logo" id="logo-img" class="hidden">
+                <span id="site-name-text">SXC Shop</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="router('home')">Home</a></li>
+                <li><a href="#" onclick="router('products')">Products</a></li>
+                <li><a href="#" onclick="router('support')">Support</a></li>
+                <li id="cart-btn-li"><a href="#" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a></li>
+                <li id="auth-btn-li"><a href="#" onclick="handleLogin()"><i class="fas fa-user"></i> Login</a></li>
+                <li id="admin-btn-li" class="hidden"><a href="#" onclick="router('admin')" class="admin-link"><i class="fas fa-cog"></i> Admin Panel</a></li>
+                <li id="logout-btn-li" class="hidden"><a href="#" onclick="handleLogout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="app-content">
+        <!-- Views will be injected here by JavaScript -->
+    </main>
+
+    <!-- Footer -->
+    <footer id="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p id="footer-contact"></p>
+                </div>
+                <div class="footer-section">
+                    <h3>Social Links</h3>
+                    <div id="footer-socials"></div>
+                </div>
+                <div class="footer-section">
+                    <p>&copy; <span id="year"></span> SXC Shop. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('product-modal')">&times;</span>
+            <div id="product-detail-body"></div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal hidden">
+        <div class="modal-content cart-content">
+            <span class="close-modal" onclick="toggleCart()">&times;</span>
+            <h2>Your Cart</h2>
+            <div id="cart-items"></div>
+            <div class="cart-total">
+                <h3>Total: <span id="cart-total-amount">0</span> BDT</h3>
+                <button class="btn-primary" onclick="proceedToCheckout()">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('checkout-modal')">&times;</span>
+            <h2>Checkout</h2>
+            <form id="checkout-form">
+                <div id="shipping-fields">
+                    <h3>Shipping Information</h3>
+                    <input type="text" id="cust-name" placeholder="Full Name" required>
+                    <input type="text" id="cust-phone" placeholder="Phone Number" required>
+                    <textarea id="cust-address" placeholder="Full Address" required></textarea>
+                </div>
+                <h3>Payment Method</h3>
+                <select id="payment-method" onchange="togglePaymentFields()">
+                    <option value="bkash">bKash</option>
+                    <option value="nagad">Nagad</option>
+                    <option value="sslcommerz">Credit/Debit Card (SSLCommerz)</option>
+                </select>
+                
+                <div id="manual-payment-info" class="payment-info">
+                    <p>Send money to: <strong>01700000000</strong> (Personal)</p>
+                    <p>Reference: Your Phone Number</p>
+                    <input type="text" id="trx-id" placeholder="Enter Transaction ID (TrxID)" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Confirm Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <script src="app.js"></script>
+</body>
+</html>
