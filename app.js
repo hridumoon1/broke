@@ -60,19 +60,40 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 // ADMIN AUTHENTICATION
 // ============================================
+
+// List of admin emails - Add your admin emails here
+const ADMIN_EMAILS = [
+    "your-admin-email@gmail.com",  // Replace with your actual admin email
+    "admin@sxc-shop.xyz"
+];
+
 async function checkAdminStatus(email) {
     try {
-        const adminDoc = await db.collection('admins').doc(email).get();
-        isAdmin = adminDoc.exists && adminDoc.data().isAllowed;
+        // Check if email is in the hardcoded admin list OR in Firestore admins collection
+        const isHardcodedAdmin = ADMIN_EMAILS.includes(email);
+        
+        let isFirestoreAdmin = false;
+        if (!isHardcodedAdmin) {
+            // Also check Firestore for dynamic admin management
+            const adminDoc = await db.collection('admins').doc(email).get();
+            isFirestoreAdmin = adminDoc.exists && adminDoc.data().isAllowed;
+        }
+        
+        isAdmin = isHardcodedAdmin || isFirestoreAdmin;
+        
+        const adminBtn = document.getElementById('admin-btn-li');
         
         if (isAdmin) {
-            document.getElementById('admin-btn-li').classList.remove('hidden');
+            adminBtn.classList.remove('hidden');
+            console.log('User is admin:', email);
         } else {
-            document.getElementById('admin-btn-li').classList.add('hidden');
+            adminBtn.classList.add('hidden');
+            console.log('User is not admin:', email);
         }
     } catch (error) {
         console.error('Error checking admin status:', error);
         isAdmin = false;
+        document.getElementById('admin-btn-li').classList.add('hidden');
     }
 }
 
