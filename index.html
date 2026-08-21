@@ -1,325 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SXC Shop - Premium E-Commerce</title>
-  <meta name="description" content="Premium e-commerce shopping experience with quality products">
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <!-- Styles -->
-  <link rel="stylesheet" href="style.css">
-  
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SXC Shop - Premium E-Commerce</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="container header-content">
-      <a href="/" class="logo">
-        <i data-lucide="shopping-bag" width="24" height="24"></i>
-        <span>SXC Shop</span>
-      </a>
-      
-      <nav class="nav-desktop">
-        <a href="#" class="active">Home</a>
-        <a href="#products">Products</a>
-        <a href="#categories">Categories</a>
-        <a href="#about">About</a>
-      </nav>
-      
-      <div class="header-actions">
-        <button id="searchBtn" class="btn-icon cart-btn" aria-label="Search">
-          <i data-lucide="search" width="20" height="20"></i>
-        </button>
-        
-        <button id="authBtn" class="btn-icon cart-btn" aria-label="Account">
-          <i data-lucide="user" width="20" height="20"></i>
-        </button>
-        
-        <button id="adminBtn" class="btn btn-primary btn-sm hidden" onclick="window.location.href='admin.html'">
-          <i data-lucide="shield" width="16" height="16"></i>
-          <span>Admin Panel</span>
-        </button>
-        
-        <button id="cartBtn" class="btn-icon cart-btn" aria-label="Cart">
-          <i data-lucide="shopping-cart" width="20" height="20"></i>
-          <span class="cart-count" id="cartCount">0</span>
-        </button>
-        
-        <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Menu">
-          <i data-lucide="menu" width="24" height="24"></i>
-        </button>
-      </div>
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <p>Free Shipping on Orders Over $50 | Use Code: <strong>SXC50</strong></p>
     </div>
-  </header>
-  
-  <!-- Mobile Navigation -->
-  <div class="overlay" id="overlay"></div>
-  
-  <nav class="mobile-nav" id="mobileNav">
-    <div class="mobile-nav-header">
-      <a href="/" class="logo">
-        <i data-lucide="shopping-bag" width="24" height="24"></i>
-        <span>SXC Shop</span>
-      </a>
-      <button id="closeMobileNav" class="btn-icon" aria-label="Close menu">
-        <i data-lucide="x" width="24" height="24"></i>
-      </button>
-    </div>
-    <div class="mobile-nav-links">
-      <a href="#">Home</a>
-      <a href="#products">Products</a>
-      <a href="#categories">Categories</a>
-      <a href="#about">About</a>
-      <a href="#" id="mobileAuthBtn">Login / Sign Up</a>
-      <a href="admin.html" id="mobileAdminBtn" class="hidden">Admin Panel</a>
-    </div>
-  </nav>
-  
-  <!-- Cart Sidebar -->
-  <div class="cart-sidebar" id="cartSidebar">
-    <div class="cart-header">
-      <h3 class="cart-title">Shopping Cart</h3>
-      <button id="closeCart" class="btn-icon" aria-label="Close cart">
-        <i data-lucide="x" width="20" height="20"></i>
-      </button>
-    </div>
-    
-    <div class="cart-items" id="cartItems">
-      <!-- Cart items will be inserted here -->
-    </div>
-    
-    <div class="cart-footer">
-      <div class="cart-summary">
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <span id="cartSubtotal">$0.00</span>
-        </div>
-        <div class="summary-row">
-          <span>Shipping</span>
-          <span id="cartShipping">Calculated at checkout</span>
-        </div>
-        <div class="summary-row summary-total">
-          <span>Total</span>
-          <span id="cartTotal">$0.00</span>
-        </div>
-      </div>
-      <button class="btn btn-primary btn-block" id="checkoutBtn">
-        Proceed to Checkout
-      </button>
-    </div>
-  </div>
-  
-  <!-- Auth Modal -->
-  <div class="modal-overlay" id="authModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 class="modal-title">Welcome Back</h2>
-        <p class="modal-subtitle">Sign in to access your account</p>
-      </div>
-      
-      <button class="auth-btn" id="googleSignIn">
-        <svg class="auth-icon" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Continue with Google
-      </button>
-      
-      <button class="btn btn-ghost btn-block mt-4" id="closeAuthModal">
-        Cancel
-      </button>
-    </div>
-  </div>
-  
-  <!-- Main Content -->
-  <main>
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="container">
-        <h1 class="hero-title">Premium Products,<br>Exceptional Quality</h1>
-        <p class="hero-subtitle">Discover our curated collection of premium products with fast delivery and secure payment options.</p>
-        <div class="hero-actions">
-          <a href="#products" class="btn btn-primary">
-            Shop Now
-            <i data-lucide="arrow-right" width="18" height="18"></i>
-          </a>
-          <a href="#categories" class="btn btn-secondary">
-            Browse Categories
-          </a>
-        </div>
-      </div>
-    </section>
-    
-    <!-- Categories Section -->
-    <section class="section" id="categories">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Shop by Category</h2>
-          <a href="#" class="btn btn-ghost">
-            View All
-            <i data-lucide="arrow-right" width="16" height="16"></i>
-          </a>
-        </div>
-        
-        <div class="categories-grid" id="categoriesGrid">
-          <!-- Categories will be loaded here -->
-          <div class="category-card skeleton" style="height: 160px;"></div>
-          <div class="category-card skeleton" style="height: 160px;"></div>
-          <div class="category-card skeleton" style="height: 160px;"></div>
-          <div class="category-card skeleton" style="height: 160px;"></div>
-        </div>
-      </div>
-    </section>
-    
-    <!-- Products Section -->
-    <section class="section" id="products">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Featured Products</h2>
-          <div class="flex items-center gap-2">
-            <button class="btn btn-ghost" aria-label="Filter">
-              <i data-lucide="filter" width="18" height="18"></i>
-              Filter
+
+    <!-- Header -->
+    <header class="header" id="main-header">
+        <div class="container header-container">
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open Menu">
+                <i data-lucide="menu"></i>
             </button>
-            <button class="btn btn-ghost" aria-label="Sort">
-              <i data-lucide="arrow-up-down" width="18" height="18"></i>
-              Sort
-            </button>
-          </div>
-        </div>
-        
-        <div class="products-grid" id="productsGrid">
-          <!-- Products will be loaded here -->
-          <div class="product-card">
-            <div class="product-image-wrapper skeleton"></div>
-            <div class="product-info">
-              <div class="skeleton" style="height: 16px; margin-bottom: 8px;"></div>
-              <div class="skeleton" style="height: 16px; margin-bottom: 8px;"></div>
-              <div class="skeleton" style="height: 24px; width: 80px;"></div>
+            
+            <a href="#" class="logo">
+                SXC<span>Shop</span>
+            </a>
+
+            <div class="search-bar-desktop">
+                <input type="text" placeholder="Search products..." id="desktop-search">
+                <button class="search-btn"><i data-lucide="search"></i></button>
             </div>
-          </div>
-          <div class="product-card">
-            <div class="product-image-wrapper skeleton"></div>
-            <div class="product-info">
-              <div class="skeleton" style="height: 16px; margin-bottom: 8px;"></div>
-              <div class="skeleton" style="height: 16px; margin-bottom: 8px;"></div>
-              <div class="skeleton" style="height: 24px; width: 80px;"></div>
+
+            <nav class="desktop-nav">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#products" class="nav-link">Products</a>
+                <a href="#categories" class="nav-link">Categories</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="action-btn" id="admin-btn" style="display: none;" title="Admin Panel">
+                    <i data-lucide="shield"></i>
+                    <span class="btn-text">Admin</span>
+                </button>
+                <button class="action-btn" id="auth-btn" title="Account">
+                    <i data-lucide="user"></i>
+                </button>
+                <button class="action-btn cart-trigger" id="cart-btn" title="Cart">
+                    <i data-lucide="shopping-bag"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </button>
             </div>
-          </div>
-          <div class="product-card">
-            <div class="product-image-wrapper skeleton"></div>
-            <div class="product-info">
-              <div class="skeleton" style="height: 16px; margin-bottom: 8px;"></div>
-              <div class="skeleton" style="height: 16px; margin-bottom: 8px;"></div>
-              <div class="skeleton" style="height: 24px; width: 80px;"></div>
-            </div>
-          </div>
-          <div class="product-card">
-            <div class="product-image-wrapper skeleton"></div>
-            <div class="product-info">
-              <div class="skeleton" style="height: 16px; margin-bottom: 8px;"></div>
-              <div class="skeleton" style="height: 16px; margin-bottom: 8px;"></div>
-              <div class="skeleton" style="height: 24px; width: 80px;"></div>
-            </div>
-          </div>
         </div>
-      </div>
-    </section>
-    
-    <!-- Trust Features -->
-    <section class="section" style="background: var(--color-surface);">
-      <div class="container">
-        <div class="categories-grid" style="grid-template-columns: repeat(2, 1fr);">
-          <div class="category-card" style="border: none; box-shadow: none;">
-            <i data-lucide="truck" class="category-icon" width="32" height="32"></i>
-            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Fast Delivery</h3>
-            <p style="font-size: 0.875rem; margin: 0;">Free shipping on orders over $50</p>
-          </div>
-          <div class="category-card" style="border: none; box-shadow: none;">
-            <i data-lucide="shield-check" class="category-icon" width="32" height="32"></i>
-            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Secure Payment</h3>
-            <p style="font-size: 0.875rem; margin: 0;">100% secure payment processing</p>
-          </div>
-          <div class="category-card" style="border: none; box-shadow: none;">
-            <i data-lucide="refresh-cw" class="category-icon" width="32" height="32"></i>
-            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Easy Returns</h3>
-            <p style="font-size: 0.875rem; margin: 0;">30-day return policy</p>
-          </div>
-          <div class="category-card" style="border: none; box-shadow: none;">
-            <i data-lucide="headphones" class="category-icon" width="32" height="32"></i>
-            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">24/7 Support</h3>
-            <p style="font-size: 0.875rem; margin: 0;">Dedicated customer support</p>
-          </div>
+    </header>
+
+    <!-- Mobile Search Bar (Separate Row) -->
+    <div class="mobile-search-container container">
+        <div class="search-bar-mobile">
+            <input type="text" placeholder="Search for products..." id="mobile-search">
+            <button class="search-btn"><i data-lucide="search"></i></button>
         </div>
-      </div>
-    </section>
-  </main>
-  
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-col">
-          <h4>SXC Shop</h4>
-          <p style="font-size: 0.875rem; color: var(--text-secondary);">
-            Your trusted destination for premium products with exceptional quality and service.
-          </p>
-        </div>
-        <div class="footer-col">
-          <h4>Quick Links</h4>
-          <ul class="footer-links">
-            <li><a href="#">Home</a></li>
-            <li><a href="#products">Products</a></li>
-            <li><a href="#categories">Categories</a></li>
-            <li><a href="#about">About Us</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Customer Service</h4>
-          <ul class="footer-links">
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">Shipping Info</a></li>
-            <li><a href="#">Returns</a></li>
-            <li><a href="#">FAQ</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Follow Us</h4>
-          <ul class="footer-links">
-            <li><a href="#">Facebook</a></li>
-            <li><a href="#">Twitter</a></li>
-            <li><a href="#">Instagram</a></li>
-            <li><a href="#">LinkedIn</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2024 SXC Shop. All rights reserved.</p>
-      </div>
     </div>
-  </footer>
-  
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
-  
-  <!-- Scripts -->
-  <script src="firebase-config.js"></script>
-  <script src="app.js"></script>
-  <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
-  </script>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-drawer" id="mobile-drawer">
+        <div class="drawer-overlay" id="drawer-overlay"></div>
+        <div class="drawer-content">
+            <div class="drawer-header">
+                <span class="logo">SXC<span>Shop</span></span>
+                <button class="close-drawer" id="close-drawer"><i data-lucide="x"></i></button>
+            </div>
+            <nav class="mobile-nav-links">
+                <a href="#home" class="mobile-link">Home</a>
+                <a href="#products" class="mobile-link">Products</a>
+                <a href="#categories" class="mobile-link">Categories</a>
+                <a href="#contact" class="mobile-link">Contact</a>
+                <a href="#" class="mobile-link admin-link" id="mobile-admin-link" style="display:none;">Admin Panel</a>
+            </nav>
+            <div class="drawer-footer">
+                <button class="btn btn-outline w-100" id="mobile-auth-btn">Login / Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <span class="badge badge-orange">New Collection</span>
+                    <h1>Premium Quality <br>For Your Lifestyle</h1>
+                    <p>Discover our exclusive range of products with unbeatable prices and fast delivery.</p>
+                    <div class="hero-buttons">
+                        <a href="#products" class="btn btn-primary">Shop Now</a>
+                        <a href="#categories" class="btn btn-secondary">View Categories</a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="img-placeholder">Premium Product Image</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="section categories-section" id="categories">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Shop by Category</h2>
+                    <a href="#" class="view-all">View All <i data-lucide="arrow-right"></i></a>
+                </div>
+                <div class="category-grid" id="category-grid">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section class="section products-section" id="products">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Featured Products</h2>
+                    <div class="filter-controls">
+                        <select class="form-select" id="sort-filter">
+                            <option value="default">Sort By</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="newest">Newest</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="product-grid" id="product-grid">
+                    <div class="skeleton-product"></div>
+                    <div class="skeleton-product"></div>
+                    <div class="skeleton-product"></div>
+                    <div class="skeleton-product"></div>
+                </div>
+                
+                <div class="empty-state hidden" id="products-empty">
+                    <i data-lucide="inbox"></i>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your search or filters.</p>
+                    <button class="btn btn-secondary" onclick="resetFilters()">Clear Filters</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Choose Us -->
+        <section class="section features-section">
+            <div class="container">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="truck"></i></div>
+                        <h3>Free Shipping</h3>
+                        <p>On all orders over $50</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="shield-check"></i></div>
+                        <h3>Secure Payment</h3>
+                        <p>100% secure transactions</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="refresh-cw"></i></div>
+                        <h3>Easy Returns</h3>
+                        <p>30 days return policy</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i data-lucide="headphones"></i></div>
+                        <h3>24/7 Support</h3>
+                        <p>Dedicated support team</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section class="section reviews-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Customer Reviews</h2>
+                    <div class="rating-summary">
+                        <div class="stars">★★★★★</div>
+                        <span>4.8/5 based on 120+ reviews</span>
+                    </div>
+                </div>
+                <div class="reviews-carousel-wrapper">
+                    <button class="carousel-btn prev" id="review-prev" aria-label="Previous Reviews"><i data-lucide="chevron-left"></i></button>
+                    <div class="reviews-carousel" id="reviews-carousel">
+                        <!-- Reviews injected by JS -->
+                    </div>
+                    <button class="carousel-btn next" id="review-next" aria-label="Next Reviews"><i data-lucide="chevron-right"></i></button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h3>SXC Shop</h3>
+                <p>Your one-stop destination for premium products at affordable prices.</p>
+                <div class="social-links">
+                    <a href="#"><i data-lucide="facebook"></i></a>
+                    <a href="#"><i data-lucide="instagram"></i></a>
+                    <a href="#"><i data-lucide="twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#categories">Categories</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Customer Care</h4>
+                <ul>
+                    <li><a href="#">Shipping Policy</a></li>
+                    <li><a href="#">Returns & Refunds</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li><i data-lucide="mail"></i> support@sxcshop.xyz</li>
+                    <li><i data-lucide="phone"></i> +880 1234 567890</li>
+                    <li><i data-lucide="map-pin"></i> Dhaka, Bangladesh</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2024 SXC Shop. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-overlay" id="cart-overlay"></div>
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Your Cart</h2>
+                <button class="close-cart" id="close-cart"><i data-lucide="x"></i></button>
+            </div>
+            <div class="cart-items" id="cart-items">
+                <div class="empty-cart-state">
+                    <i data-lucide="shopping-bag"></i>
+                    <p>Your cart is empty</p>
+                    <button class="btn btn-primary" id="start-shopping">Start Shopping</button>
+                </div>
+            </div>
+            <div class="cart-footer">
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span id="cart-shipping">Calculated at checkout</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="cart-total">$0.00</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary w-100" id="checkout-btn">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-overlay" id="auth-overlay"></div>
+        <div class="modal-content auth-content">
+            <button class="close-modal" id="close-auth"><i data-lucide="x"></i></button>
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">Login</button>
+                <button class="tab-btn" data-tab="signup">Sign Up</button>
+            </div>
+            <div class="auth-forms">
+                <form id="login-form" class="auth-form active">
+                    <h3>Welcome Back</h3>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                    <div class="divider"><span>OR</span></div>
+                    <button type="button" class="btn btn-google w-100" id="google-login-btn">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                        Continue with Google
+                    </button>
+                </form>
+                <form id="signup-form" class="auth-form">
+                    <h3>Create Account</h3>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
