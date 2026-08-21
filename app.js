@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Products
     loadProducts();
     
+    // Load Reviews
+    loadReviews();
+    
     // Checkout Form Handler
     document.getElementById('checkout-form').addEventListener('submit', handleCheckout);
 });
@@ -194,21 +197,334 @@ async function loadProducts() {
     }
 }
 
+// ============================================
+// REVIEW CAROUSEL
+// ============================================
+async function loadReviews() {
+    try {
+        const snapshot = await db.collection('reviews')
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get();
+        
+        reviews = [];
+        snapshot.forEach(doc => {
+            reviews.push({ id: doc.id, ...doc.data() });
+        });
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+    }
+}
+
+function calculateAverageRating() {
+    if (reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
+    return (sum / reviews.length).toFixed(1);
+}
+
+function renderStars(rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+            stars += '<i class="fas fa-star"></i>';
+        } else if (i - 0.5 <= rating) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        } else {
+            stars += '<i class="far fa-star"></i>';
+        }
+    }
+    return stars;
+}
+
+function renderReviewCarousel() {
+    if (reviews.length === 0) {
+        return '';
+    }
+    
+    const avgRating = calculateAverageRating();
+    
+    return `
+        <section class="reviews-section">
+            <div class="container">
+                <div class="reviews-header">
+                    <h2>Customer Reviews</h2>
+                    <div class="rating-summary">
+                        <div class="rating-stars">${renderStars(parseFloat(avgRating))}</div>
+                        <span class="rating-text">${avgRating} out of 5 (${reviews.length} reviews)</span>
+                    </div>
+                </div>
+                
+                <div class="carousel-container">
+                    <button class="carousel-btn carousel-prev" aria-label="Previous reviews" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <div class="carousel-track-container">
+                        <div class="carousel-track" id="review-carousel-track">
+                            ${reviews.map(review => `
+                                <div class="review-card">
+                                    <div class="review-card-header">
+                                        <div class="review-rating">${renderStars(review.rating || 0)}</div>
+                                        ${review.verifiedPurchase ? '<span class="verified-badge"><i class="fas fa-check-circle"></i> Verified Purchase</span>' : ''}
+                                    </div>
+                                    ${review.title ? `<h4 class="review-title">${review.title}</h4>` : ''}
+                                    <p class="review-text">"${review.comment || 'Great product!'}"</p>
+                                    <div class="review-footer">
+                                        <div class="reviewer-info">
+                                            <span class="reviewer-name">${review.customerName || 'Anonymous'}</span>
+                                            <span class="review-date">${review.dateAgo || 'Recent'}</span>
+                                        </div>
+                                        ${review.helpfulCount !== undefined ? `
+                                            <button class="helpful-btn" onclick="markHelpful('${review.id}')">
+                                                <i class="far fa-thumbs-up"></i>
+                                                <span>Helpful ${review.helpfulCount || 0}</span>
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <button class="carousel-btn carousel-next" aria-label="Next reviews">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="carousel-pagination" id="carousel-pagination"></div>
+            </div>
+        </section>
+    `;
+}
+
+function initReviewCarousel() {
+    const track = document.getElementById('review-carousel-track');
+    if (!track) return;
+    
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+    const paginationContainer = document.getElementById('carousel-pagination');
+    
+    let currentIndex = 0;
+    let cardsPerView = getCardsPerView();
+    let totalCards = reviews.length;
+    let maxIndex = Math.max(0, totalCards - cardsPerView);
+    
+    function updateCarousel() {
+        const cardWidth = track.querySelector('.review-card').offsetWidth + 24;
+        track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+        
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= maxIndex;
+        
+        updatePagination();
+    }
+    
+    function getCardsPerView() {
+        if (window.innerWidth >= 1024) return 3;
+        if (window.innerWidth >= 768) return 2;
+        return 1;
+    }
+    
+    function updatePagination() {
+        if (!paginationContainer) return;
+        const totalPages = Math.ceil(totalCards / cardsPerView);
+        const currentPage = Math.floor(currentIndex / cardsPerView) + 1;
+        
+        paginationContainer.innerHTML = '';
+        for (let i = 0; i < totalPages; i++) {
+            const dot = document.createElement('button');
+            dot.className = `pagination-dot ${i === currentPage - 1 ? 'active' : ''}`;
+            dot.setAttribute('aria-label', `Go to page ${i + 1}`);
+            dot.onclick = () => {
+                currentIndex = i * cardsPerView;
+                updateCarousel();
+            };
+            paginationContainer.appendChild(dot);
+        }
+    }
+    
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+        }
+    });
+    
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < maxIndex) {
+            currentIndex++;
+            updateCarousel();
+        }
+    });
+    
+    let startX = 0;
+    let isDragging = false;
+    
+    track.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+    }, { passive: true });
+    
+    track.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const currentX = e.touches[0].clientX;
+        const diff = startX - currentX;
+        
+        if (Math.abs(diff) > 50) {
+            isDragging = false;
+            if (diff > 0 && currentIndex < maxIndex) {
+                currentIndex++;
+            } else if (diff < 0 && currentIndex > 0) {
+                currentIndex--;
+            }
+            updateCarousel();
+        }
+    }, { passive: true });
+    
+    track.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+    
+    track.addEventListener('mousedown', (e) => {
+        startX = e.clientX;
+        isDragging = true;
+        track.style.cursor = 'grabbing';
+    });
+    
+    track.addEventListener('mouseup', (e) => {
+        if (!isDragging) return;
+        const diff = startX - e.clientX;
+        
+        if (Math.abs(diff) > 50) {
+            if (diff > 0 && currentIndex < maxIndex) {
+                currentIndex++;
+            } else if (diff < 0 && currentIndex > 0) {
+                currentIndex--;
+            }
+            updateCarousel();
+        }
+        isDragging = false;
+        track.style.cursor = 'grab';
+    });
+    
+    track.addEventListener('mouseleave', () => {
+        isDragging = false;
+        track.style.cursor = 'grab';
+    });
+    
+    track.setAttribute('tabindex', '0');
+    track.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' && currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+        } else if (e.key === 'ArrowRight' && currentIndex < maxIndex) {
+            currentIndex++;
+            updateCarousel();
+        }
+    });
+    
+    window.addEventListener('resize', () => {
+        cardsPerView = getCardsPerView();
+        maxIndex = Math.max(0, totalCards - cardsPerView);
+        currentIndex = Math.min(currentIndex, maxIndex);
+        updateCarousel();
+    });
+    
+    track.style.cursor = 'grab';
+    updateCarousel();
+}
+
+async function markHelpful(reviewId) {
+    if (!currentUser) {
+        showToast('Please login to mark reviews as helpful', 'error');
+        return;
+    }
+    
+    try {
+        const reviewRef = db.collection('reviews').doc(reviewId);
+        const reviewDoc = await reviewRef.get();
+        
+        if (reviewDoc.exists) {
+            const data = reviewDoc.data();
+            const votedUsers = data.votedUsers || [];
+            
+            if (!votedUsers.includes(currentUser.uid)) {
+                await reviewRef.update({
+                    helpfulCount: firebase.firestore.FieldValue.increment(1),
+                    votedUsers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+                });
+                
+                const review = reviews.find(r => r.id === reviewId);
+                if (review) {
+                    review.helpfulCount = (review.helpfulCount || 0) + 1;
+                    if (!review.votedUsers) review.votedUsers = [];
+                    review.votedUsers.push(currentUser.uid);
+                }
+                
+                initReviewCarousel();
+                showToast('Thank you for your feedback!', 'success');
+            }
+        }
+    } catch (error) {
+        console.error('Error marking helpful:', error);
+    }
+}
+
+function renderHomePage() {
+    const container = document.getElementById('app-content');
+    
+    let html = `
+        <div class="container">
+            <div class="hero">
+                <h1>${siteSettings.siteName || 'Welcome to SXC Shop'}</h1>
+                <p>Premium Digital & Physical Products at Best Prices</p>
+            </div>
+            
+            <h2>Featured Products</h2>
+            
+            ${products.length === 0 ? '<p>No products available</p>' : ''}
+            
+            <div class="products-grid">
+                ${products.slice(0, 8).map(product => `
+                    <div class="product-card" onclick="showProductDetail('${product.id}')">
+                        <img src="${product.image || 'https://via.placeholder.com/300'}" 
+                             alt="${product.name}" class="product-image">
+                        <div class="product-info">
+                            <h3 class="product-title">${product.name}</h3>
+                            <div class="product-price">
+                                ৳${product.price}
+                                ${product.oldPrice ? `<span class="product-old-price">৳${product.oldPrice}</span>` : ''}
+                                ${product.discount > 0 ? `<span class="product-badge">-${product.discount}%</span>` : ''}
+                            </div>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                                ${product.type === 'digital' ? '<i class="fas fa-download"></i> Digital' : '<i class="fas fa-truck"></i> Physical'}
+                                • Stock: ${product.stock}
+                            </p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        ${renderReviewCarousel()}
+    `;
+    
+    container.innerHTML = html;
+    
+    setTimeout(() => {
+        initReviewCarousel();
+    }, 100);
+}
+
 function renderProducts(filteredProducts = null) {
     const productList = filteredProducts || products;
     const container = document.getElementById('app-content');
     
-    if (currentView === 'home' || currentView === 'products') {
+    if (currentView === 'products') {
         let html = `
             <div class="container">
-                ${currentView === 'home' ? `
-                <div class="hero">
-                    <h1>${siteSettings.siteName || 'Welcome to SXC Shop'}</h1>
-                    <p>Best Digital & Physical Products at Best Prices</p>
-                </div>
-                ` : ''}
-                
-                <h2>${currentView === 'home' ? 'Featured Products' : 'All Products'}</h2>
+                <h2>All Products</h2>
                 
                 ${productList.length === 0 ? '<p>No products available</p>' : ''}
                 
@@ -247,18 +563,18 @@ function showProductDetail(productId) {
     const body = document.getElementById('product-detail-body');
     
     body.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="product-detail-grid">
             <img src="${product.image || 'https://via.placeholder.com/300'}" 
-                 alt="${product.name}" style="width: 100%; border-radius: 10px;">
+                 alt="${product.name}" class="product-detail-image">
             <div>
                 <h2>${product.name}</h2>
-                <p style="color: #666; margin: 10px 0;">${product.description || 'No description'}</p>
-                <h3 style="color: var(--primary-color); font-size: 1.5rem;">৳${product.price}</h3>
-                ${product.oldPrice ? `<p style="text-decoration: line-through; color: #999;">৳${product.oldPrice}</p>` : ''}
-                <p><strong>Type:</strong> ${product.type === 'digital' ? 'Digital Product' : 'Physical Product'}</p>
-                <p><strong>Availability:</strong> ${product.stock > 0 ? 'In Stock (' + product.stock + ')' : 'Out of Stock'}</p>
+                <p class="product-detail-description">${product.description || 'No description'}</p>
+                <h3 class="product-detail-price">৳${product.price}</h3>
+                ${product.oldPrice ? `<p class="product-old-price-inline">৳${product.oldPrice}</p>` : ''}
+                <p class="product-detail-meta-item"><strong>Type:</strong> ${product.type === 'digital' ? 'Digital Product' : 'Physical Product'}</p>
+                <p class="product-detail-meta-item"><strong>Availability:</strong> ${product.stock > 0 ? 'In Stock (' + product.stock + ')' : 'Out of Stock'}</p>
                 
-                ${product.category ? `<p><strong>Category:</strong> ${product.category}</p>` : ''}
+                ${product.category ? `<p class="product-detail-meta-item"><strong>Category:</strong> ${product.category}</p>` : ''}
                 
                 <button class="btn-primary" 
                         onclick="addToCart('${product.id}')" 
@@ -328,17 +644,35 @@ function toggleCart() {
                     <div class="cart-item-details">
                         <h4>${item.name}</h4>
                         <p>৳${item.price} x ${item.quantity}</p>
+                        <div class="cart-item-actions">
+                            <div class="cart-quantity-control">
+                                <button class="cart-quantity-btn" onclick="updateCartQuantity(${index}, -1)"><i class="fas fa-minus"></i></button>
+                                <span class="cart-quantity-display">${item.quantity}</span>
+                                <button class="cart-quantity-btn" onclick="updateCartQuantity(${index}, 1)"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn-danger" onclick="removeFromCart(${index})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             `).join('');
-            
+
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            document.getElementById('cart-total-amount').textContent = total;
+            const hasPhysical = cart.some(item => item.type === 'physical');
+            const shippingFee = hasPhysical ? 60 : 0;
+            
+            document.getElementById('cart-subtotal').textContent = '৳' + total;
+            document.getElementById('cart-shipping').textContent = hasPhysical ? '৳' + shippingFee : 'Free';
+            document.getElementById('cart-total-amount').textContent = '৳' + (total + shippingFee);
+            
+            // Show/hide empty state and summary
+            document.getElementById('cart-empty').classList.toggle('hidden', cart.length > 0);
+            document.getElementById('cart-summary').classList.toggle('hidden', cart.length === 0);
         }
-        
+
+        modal.classList.remove('hidden');
+        }
         modal.classList.remove('hidden');
     } else {
         modal.classList.add('hidden');
@@ -628,6 +962,7 @@ function sendCustomerNotification(email, type, data) {
 // ============================================
 let currentView = 'home';
 let currentAdminView = 'dashboard';
+let reviews = [];
 
 function router(view) {
     currentView = view;
@@ -640,7 +975,7 @@ function router(view) {
         }
         renderAdminPanel();
     } else if (view === 'home') {
-        renderProducts();
+        renderHomePage();
     } else if (view === 'products') {
         renderProducts();
     } else if (view === 'support') {
@@ -1447,3 +1782,319 @@ async function filterOrders(status) {
     
     toggleLoader(false);
 }
+
+// ============================================
+// NEW CHECKOUT STEP NAVIGATION
+// ============================================
+let currentCheckoutStep = 1;
+
+function changeCheckoutStep(direction) {
+    const totalSteps = 3;
+    const newStep = currentCheckoutStep + direction;
+    
+    if (newStep < 1 || newStep > totalSteps) return;
+    
+    // Validate current step before moving forward
+    if (direction === 1 && !validateCheckoutStep(currentCheckoutStep)) {
+        return;
+    }
+    
+    // Update step display
+    document.querySelectorAll('.checkout-step').forEach((step, index) => {
+        const stepNum = index + 1;
+        step.classList.remove('active', 'completed');
+        
+        if (stepNum < newStep) {
+            step.classList.add('completed');
+        } else if (stepNum === newStep) {
+            step.classList.add('active');
+        }
+    });
+    
+    // Show/hide sections
+    document.getElementById('shipping-fields').classList.toggle('hidden', newStep !== 1);
+    document.getElementById('payment-fields').classList.toggle('hidden', newStep !== 2);
+    document.getElementById('review-fields').classList.toggle('hidden', newStep !== 3);
+    
+    // Update buttons
+    const prevBtn = document.getElementById('prev-step');
+    const nextBtn = document.getElementById('next-step');
+    const confirmBtn = document.getElementById('confirm-order');
+    
+    prevBtn.hidden = newStep === 1;
+    nextBtn.hidden = newStep === 3;
+    confirmBtn.hidden = newStep !== 3;
+    
+    // Populate review on step 3
+    if (newStep === 3) {
+        populateOrderReview();
+    }
+    
+    currentCheckoutStep = newStep;
+}
+
+function validateCheckoutStep(step) {
+    if (step === 1) {
+        const name = document.getElementById('cust-name').value.trim();
+        const phone = document.getElementById('cust-phone').value.trim();
+        const address = document.getElementById('cust-address').value.trim();
+        
+        if (!name || !phone || !address) {
+            showToast('Please fill in all shipping information', 'error');
+            return false;
+        }
+        
+        if (phone.length < 10) {
+            showToast('Please enter a valid phone number', 'error');
+            return false;
+        }
+    }
+    
+    if (step === 2) {
+        const paymentMethod = document.querySelector('input[name="payment-method"]:checked');
+        
+        if (!paymentMethod) {
+            showToast('Please select a payment method', 'error');
+            return false;
+        }
+        
+        if (paymentMethod.value !== 'sslcommerz') {
+            const trxId = document.getElementById('trx-id')?.value.trim();
+            
+            if (!trxId || trxId.length < 6) {
+                showToast('Please enter a valid Transaction ID', 'error');
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
+function populateOrderReview() {
+    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const hasPhysical = cart.some(item => item.type === 'physical');
+    const shippingFee = hasPhysical ? 60 : 0;
+    const total = cartTotal + shippingFee;
+    
+    const paymentMethod = document.querySelector('input[name="payment-method"]:checked');
+    const paymentMethodName = paymentMethod ? paymentMethod.nextElementSibling.querySelector('span').textContent : '';
+    
+    let reviewHtml = `
+        <div class="order-review-items">
+            <h4>Items (${cart.length})</h4>
+            ${cart.map(item => `
+                <div class="review-item">
+                    <img src="${item.image || 'https://via.placeholder.com/60'}" alt="${item.name}">
+                    <div class="review-item-details">
+                        <p class="review-item-name">${item.name}</p>
+                        <p class="review-item-meta">Qty: ${item.quantity} × ৳${item.price}</p>
+                    </div>
+                    <p class="review-item-total">৳${item.price * item.quantity}</p>
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="order-review-summary">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>৳${cartTotal}</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span>${shippingFee > 0 ? '৳' + shippingFee : 'Free'}</span>
+            </div>
+            <div class="summary-row grand-total">
+                <span>Total</span>
+                <span>৳${total}</span>
+            </div>
+        </div>
+        
+        <div class="order-review-shipping">
+            <h4>Shipping Information</h4>
+            <p><strong>${document.getElementById('cust-name').value}</strong></p>
+            <p>${document.getElementById('cust-phone').value}</p>
+            <p>${document.getElementById('cust-address').value}</p>
+        </div>
+        
+        <div class="order-review-payment">
+            <h4>Payment Method</h4>
+            <p><i class="fas fa-${paymentMethod.value === 'sslcommerz' ? 'credit-card' : 'mobile-alt'}"></i> ${paymentMethodName}</p>
+        </div>
+    `;
+    
+    document.getElementById('order-review').innerHTML = reviewHtml;
+}
+
+// Enhanced togglePaymentFields for radio buttons
+function togglePaymentFields() {
+    const paymentMethod = document.querySelector('input[name="payment-method"]:checked');
+    const manualInfo = document.getElementById('manual-payment-info');
+    const sslInfo = document.getElementById('ssl-info');
+    
+    if (!paymentMethod) return;
+    
+    const method = paymentMethod.value;
+    
+    if (method === 'sslcommerz') {
+        manualInfo.classList.add('hidden');
+        sslInfo.classList.remove('hidden');
+    } else {
+        const number = method === 'bkash' ? '01700000000' : '01800000000';
+        manualInfo.innerHTML = `
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <p>Send money to: <strong>${number}</strong> (${method.toUpperCase()})</p>
+                <p>Reference: Your Phone Number</p>
+            </div>
+            <input type="text" id="trx-id" placeholder="Transaction ID (TrxID) *" required>
+        `;
+        manualInfo.classList.remove('hidden');
+        sslInfo.classList.add('hidden');
+    }
+}
+
+// Mobile menu toggle
+document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const navLinks = document.getElementById('nav-links');
+    
+    if (mobileMenuBtn && navLinks) {
+        mobileMenuBtn.addEventListener('click', () => {
+            const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+            mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+            navLinks.classList.toggle('active');
+        });
+    }
+    
+    // Search functionality
+    const searchBtn = document.getElementById('search-btn');
+    const searchBarContainer = document.getElementById('search-bar-container');
+    const searchClose = document.getElementById('search-close');
+    const searchInput = document.getElementById('search-input');
+    
+    if (searchBtn && searchBarContainer) {
+        searchBtn.addEventListener('click', () => {
+            searchBarContainer.classList.remove('hidden');
+            setTimeout(() => searchInput?.focus(), 100);
+        });
+    }
+    
+    if (searchClose && searchBarContainer) {
+        searchClose.addEventListener('click', () => {
+            searchBarContainer.classList.add('hidden');
+            if (searchInput) searchInput.value = '';
+        });
+    }
+    
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('navbar');
+        if (window.scrollY > 10) {
+            navbar?.classList.add('scrolled');
+        } else {
+            navbar?.classList.remove('scrolled');
+        }
+    });
+});
+
+// Add styles for order review
+const orderReviewStyles = `
+<style>
+.order-review-items h4,
+.order-review-shipping h4,
+.order-review-payment h4 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-3);
+}
+
+.review-item {
+    display: flex;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3) 0;
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
+.review-item-details {
+    flex: 1;
+}
+
+.review-item-name {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-1);
+}
+
+.review-item-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-500);
+}
+
+.review-item-total {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+}
+
+.order-review-summary {
+    margin: var(--spacing-6) 0;
+    padding: var(--spacing-4);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-md);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-2) 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+}
+
+.summary-row.grand-total {
+    border-top: 1px solid var(--color-gray-200);
+    padding-top: var(--spacing-3);
+    margin-top: var(--spacing-2);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-gray-800);
+}
+
+.order-review-shipping,
+.order-review-payment {
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-4);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-md);
+}
+
+.order-review-shipping p,
+.order-review-payment p {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-1);
+    line-height: var(--line-height-relaxed);
+}
+
+.order-review-payment i {
+    color: var(--color-primary);
+    margin-right: var(--spacing-2);
+}
+</style>
+`;
+
+document.head.insertAdjacentHTML('beforeend', orderReviewStyles);
